@@ -30,5 +30,11 @@ namespace AdaDanaApi.Controller
                 return BadRequest("Failed to register user");
             }
         }
+        [HttpPost]
+        public IActionResult Register(RegisterUserDto registerUser)
+        {
+            return Register(registerUser);
+        }
+        // menambahkan yang diber
     }
 }

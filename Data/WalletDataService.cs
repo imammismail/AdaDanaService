@@ -62,6 +62,31 @@ namespace AdaDanaService.Data
             _context.SaveChanges();
         }
 
+         public void CashOutWallet(string username, int saldo)
+        {
+            var user = GetUserByUsername(username);
+
+            if (user == null)
+            {
+                throw new Exception($"User with username {username} not found.");
+            }
+
+            var wallet = user.Wallets.FirstOrDefault();
+
+            if (wallet == null)
+            {
+                wallet = new Wallet { UserId = user.Id, Saldo = saldo };
+                _context.Wallets.Add(wallet);
+            }
+            else
+            {
+                wallet.Saldo -= saldo;
+                _context.Wallets.Update(wallet);
+            }
+
+            _context.SaveChanges();
+        }
+
         public Wallet GetWallet(int saldo)
         {
             return _context.Wallets.FirstOrDefault(w => w.Saldo == saldo);

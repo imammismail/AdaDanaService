@@ -6,5 +6,6 @@ namespace AdaDanaService.Data
     public interface IAccountService
     {
         bool Register(RegisterUserDto registerUserDto);
+        UserToken Login(LoginUserDto loginUserDto);
     }
 }

@@ -2,6 +2,10 @@
 using AdaDanaService.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Transactions;
 using BC = BCrypt.Net.BCrypt;
 
@@ -12,14 +16,84 @@ namespace AdaDanaService.Data
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
+        private readonly IUserRoleService _userRoleService;
+        private readonly IConfiguration _configuration;
 
-        public AccountService(IUserService userService, IRoleService roleService, IMapper mapper)
+        public AccountService(IUserService userService, IRoleService roleService,
+        IMapper mapper, IUserRoleService userRoleService, IConfiguration configuration)
         {
             _userService = userService;
             _roleService = roleService;
             _mapper = mapper;
+            _userRoleService = userRoleService;
+            _configuration = configuration;
         }
-        [HttpPost]
+
+        public UserToken Login(LoginUserDto loginUserDto)
+        {
+            // linq
+            // var usr = _context.Users
+            //     .Include(u => u.Role)
+            //     .Where(o => o.Username == user.Username)
+            //     .FirstOrDefault();
+
+            var usr = _userService.FindUserByUsername(loginUserDto.Username);
+            if (usr != null)
+            {
+                if (BC.Verify(loginUserDto.Password, usr.Password))
+                {
+                    // login sukses
+                    // ambil role dari tabel role berdasarkan roleId pada tabel user
+                    // var roles = from u in _context.Users
+                    //             join r in _context.Roles on u.RoleId equals r.Id
+                    //             where u.Username == loginUserDto.Username
+                    //             select new { r.Id, r.Name };
+
+                    var roles = _userRoleService.GetRolesByUsername(loginUserDto.Username);
+
+                    var roleClaims = new Dictionary<string, object>();
+                    foreach (var role in roles)
+                    {
+                        roleClaims.Add(ClaimTypes.Role, "" + role);
+                    }
+
+
+                    var secret = _configuration.GetValue<string>("AppSettings:Secret");
+                    var secretBytes = Encoding.ASCII.GetBytes(secret);
+
+                    // token
+                    var expired = DateTime.Now.AddDays(2); // 2 hari
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    // data
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        // payload
+                        Subject = new System.Security.Claims.ClaimsIdentity(
+                                new Claim[]
+                                {
+                                    new Claim(ClaimTypes.Name, loginUserDto.Username)
+                                }),
+                        Claims = roleClaims, // claims - roles
+                        Expires = expired,
+                        SigningCredentials = new SigningCredentials(
+                                new SymmetricSecurityKey(secretBytes),
+                                SecurityAlgorithms.HmacSha256Signature
+                            )
+                    };
+                    var token = tokenHandler.CreateToken(tokenDescriptor);
+                    var userToken = new UserToken
+                    {
+                        Token = tokenHandler.WriteToken(token), // token as string
+                        ExpiredAt = expired.ToString(),
+                        Message = ""
+                    };
+                    return userToken;
+                }
+            }
+            return new UserToken { Message = "Invalid username or password" };
+        }
+
+
         public bool Register(RegisterUserDto registerUserDto)
         {
             using (var trans = new TransactionScope())

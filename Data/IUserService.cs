@@ -7,5 +7,6 @@ namespace AdaDanaService.Data
         User GetUserByUsername(string username);
         void AddUser(User user);
         IEnumerable<User> GetAllUser();
+        User FindUserByUsername(string username);
     }
 }

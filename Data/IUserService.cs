@@ -1,6 +1,6 @@
-﻿using AdaDanaApi.Models;
+﻿using AdaDanaService.Models;
 
-namespace AdaDanaApi.Data
+namespace AdaDanaService.Data
 {
     public interface IUserService
     {

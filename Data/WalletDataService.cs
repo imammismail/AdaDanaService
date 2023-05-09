@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdaDanaApi.Dtos;
-using AdaDanaApi.Models;
+using AdaDanaService.Dtos;
+using AdaDanaService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdaDanaApi.Data
+namespace AdaDanaService.Data
 {
     public class WalletDataService
     {
@@ -20,7 +20,7 @@ namespace AdaDanaApi.Data
         public string GetUserRole(string userName)
         {
             var user = _context.Users.FirstOrDefault(u => u.Username == userName);
-            if (user == null) 
+            if (user == null)
             {
                 throw new Exception("Username is not match");
             }

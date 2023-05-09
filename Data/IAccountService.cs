@@ -1,7 +1,7 @@
-﻿using AdaDanaApi.Dtos;
-using AdaDanaApi.Models;
+﻿using AdaDanaService.Dtos;
+using AdaDanaService.Models;
 
-namespace AdaDanaApi.Data
+namespace AdaDanaService.Data
 {
     public interface IAccountService
     {

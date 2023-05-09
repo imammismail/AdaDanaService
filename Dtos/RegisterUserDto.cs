@@ -1,4 +1,4 @@
-﻿namespace AdaDanaApi.Dtos
+﻿namespace AdaDanaService.Dtos
 {
     public class RegisterUserDto
     {

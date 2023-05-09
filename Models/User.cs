@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AdaDanaApi.Models;
+namespace AdaDanaService.Models;
 
 public partial class User
 {

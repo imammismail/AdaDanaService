@@ -1,9 +1,9 @@
-﻿using AdaDanaApi.Data;
-using AdaDanaApi.Dtos;
+﻿using AdaDanaService.Data;
+using AdaDanaService.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AdaDanaApi.Controller
+namespace AdaDanaService.Controller
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

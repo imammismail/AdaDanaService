@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using AdaDanaApi.Data;
-using AdaDanaApi.Dtos;
+using AdaDanaService.Data;
+using AdaDanaService.Dtos;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace AdaDanaApi.Controller
+namespace AdaDanaService.Controller
 {
     [Route("[controller]")]
     public class UserController : ControllerBase

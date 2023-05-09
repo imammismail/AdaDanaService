@@ -1,11 +1,11 @@
-﻿using AdaDanaApi.Dtos;
-using AdaDanaApi.Models;
+﻿using AdaDanaService.Dtos;
+using AdaDanaService.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Transactions;
 using BC = BCrypt.Net.BCrypt;
 
-namespace AdaDanaApi.Data
+namespace AdaDanaService.Data
 {
     public class AccountService : IAccountService
     {

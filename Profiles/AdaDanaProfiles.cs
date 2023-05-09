@@ -1,8 +1,8 @@
-﻿using AdaDanaApi.Dtos;
-using AdaDanaApi.Models;
+﻿using AdaDanaService.Dtos;
+using AdaDanaService.Models;
 using AutoMapper;
 
-namespace AdaDanaApi.Profiles
+namespace AdaDanaService.Profiles
 {
     public class AdaDanaProfiles : Profile
     {

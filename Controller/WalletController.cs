@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using AdaDanaApi.Data;
-using AdaDanaApi.Dtos;
+using AdaDanaService.Data;
+using AdaDanaService.Dtos;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AdaDanaApi.Controller
+namespace AdaDanaService.Controller
 {
     [ApiController]
     [Route("api/[controller]")]

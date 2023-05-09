@@ -53,6 +53,20 @@ namespace AdaDanaService.Controller
             }
         }
 
+        [HttpPost("cashout")]
+        public IActionResult CashOut(TopUpDto request)
+        {
+            try
+            {
+                _walletDataService.CashOutWallet(request.Username, request.Saldo);
+                return Ok("Saldo Berhasil Berkurang");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // [HttpPost("topup")]
         // public IActionResult TopUpBalance([FromBody] TopUpDto topUpDto)
         // {

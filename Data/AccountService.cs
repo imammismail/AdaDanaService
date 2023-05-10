@@ -31,23 +31,12 @@ namespace AdaDanaService.Data
 
         public UserToken Login(LoginUserDto loginUserDto)
         {
-            // linq
-            // var usr = _context.Users
-            //     .Include(u => u.Role)
-            //     .Where(o => o.Username == user.Username)
-            //     .FirstOrDefault();
 
             var usr = _userService.FindUserByUsername(loginUserDto.Username);
             if (usr != null)
             {
                 if (BC.Verify(loginUserDto.Password, usr.Password))
                 {
-                    // login sukses
-                    // ambil role dari tabel role berdasarkan roleId pada tabel user
-                    // var roles = from u in _context.Users
-                    //             join r in _context.Roles on u.RoleId equals r.Id
-                    //             where u.Username == loginUserDto.Username
-                    //             select new { r.Id, r.Name };
 
                     var roles = _userRoleService.GetRolesByUsername(loginUserDto.Username);
 
@@ -107,8 +96,8 @@ namespace AdaDanaService.Data
                         Password = BC.HashPassword(registerUserDto.Password)
                     };
 
-                    // ambil role member
-                    var role = _roleService.GetRoleByName("Admin"); // Hardcode langsung jadi admin
+                    // ambil role user
+                    var role = _roleService.GetRoleByName("User"); // Hardcode langsung jadi user
 
                     // assign role ke user
                     if (role != null)

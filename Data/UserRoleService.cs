@@ -14,13 +14,21 @@ namespace AdaDanaService.Data
         {
             _context = context;
         }
-        //     public List<string> GetRolesByUsername(string username)
+
+        // Tambah role ke tabel user role
+        public async Task AddRoleUser(UserRole userRole)
+        {
+            await _context.UserRoles.AddAsync(userRole);
+        }
+
+        // public List<string> GetRolesByUsername(string username)
         //     {
-        //         return _context.Users
-        //    .Join(_context.Roles, u => u.RoleId, r => r.Id, (u, r) => new { u, r })
-        //    .Where(ur => ur.u.Username == username)
-        //    .Select(ur => ur.r.Name)
-        //    .ToList();
+        // //         return _context.Users
+        // //    .Join(_context.Roles, u => u.RoleId, r => r.Id, (u, r) => new { u, r })
+        // //    .Where(ur => ur.u.Username == username)
+        // //    .Select(ur => ur.r.Name)
+        // //    .ToList();
+
         //     }
     }
 }

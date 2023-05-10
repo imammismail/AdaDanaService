@@ -4,9 +4,8 @@ namespace AdaDanaService.Data
 {
     public interface IUserService
     {
-        User GetUserByUsername(string username);
-        void AddUser(User user);
-        IEnumerable<User> GetAllUser();
-        User FindUserByUsername(string username);
+        Task AddUser(User user);
+        Task<User> FindUserByUsername(string username);
+        Task<IEnumerable<User>> GetAllUser();
     }
 }

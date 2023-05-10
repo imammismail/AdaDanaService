@@ -18,9 +18,9 @@ namespace AdaDanaService.Controller
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterUserDto registerUser)
+        public async Task<IActionResult> Register(RegisterUserDto registerUser)
         {
-            var result = _accountService.Register(registerUser);
+            var result = await _accountService.Register(registerUser);
 
             if (result)
             {
@@ -33,9 +33,9 @@ namespace AdaDanaService.Controller
         }
 
         [HttpPost]
-        public ActionResult<UserToken> Login(LoginUserDto user)
+        public async Task<ActionResult<UserToken>> Login(LoginDto user)
         {
-            var result = _accountService.Login(user);
+            var result = await _accountService.Login(user);
             if (result != null)
             {
                 return result;

@@ -1,4 +1,5 @@
 ﻿using AdaDanaService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdaDanaService.Data
 {
@@ -10,12 +11,14 @@ namespace AdaDanaService.Data
         {
             _context = context;
         }
-        public Role GetRoleByName(string name)
+
+        // Ambil role name dari tabel role
+        public async Task<Role> GetRoleUser()
         {
-            var nameRole = _context.Roles.FirstOrDefault(r => r.Name == name);
-            if (nameRole is null)
-                throw new Exception("Role user not found");
-            return nameRole;
+            var roleName = await _context.Roles.Where(o => o.Name == "User").FirstOrDefaultAsync();
+            if (roleName is null)
+                throw new Exception("Role name not found");
+            return roleName;
         }
     }
 }

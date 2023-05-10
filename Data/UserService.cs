@@ -11,34 +11,25 @@ namespace AdaDanaService.Data
         {
             _context = context;
         }
-        public User GetUserByUsername(string username)
+
+        // Tambah user ke tabel user
+        public async Task AddUser(User user)
         {
-            var dataUser = _context.Users.FirstOrDefault(u => u.Username == username);
-            if (dataUser is null)
-                throw new Exception("User not match");
-            return dataUser;
+            await _context.Users.AddAsync(user);
         }
 
-        public void AddUser(User user)
+        public async Task<User> FindUserByUsername(string username)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Deletes == false);
+            if (user is null)
+                throw new Exception("User not found");
+            return user;
         }
 
-        public IEnumerable<User> GetAllUser()
+        // Mengambil all user dengan role user
+        public async Task<IEnumerable<User>> GetAllUser()
         {
-            return _context.Users.ToList();
+            return await _context.Users.ToListAsync();
         }
-
-        // public User FindUserByUsername(string username)
-        // {
-        //     var user = _context.Users
-        //         .Include(u => u.Role)
-        //         .Where(o => o.Username == username)
-        //         .FirstOrDefault();
-        //     if (user is null)
-        //         throw new Exception("User not found");
-        //     return user;
-        // }
     }
 }

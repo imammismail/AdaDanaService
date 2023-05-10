@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdaDanaService.Models;
 
 namespace AdaDanaService.Data
 {
     public interface IUserRoleService
     {
-        List<string> GetRolesByUsername(string username);
+        Task AddRoleUser(UserRole userRole);
+        // List<string> GetRolesByUsername(string username);
     }
 }

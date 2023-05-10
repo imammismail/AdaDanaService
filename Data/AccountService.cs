@@ -102,11 +102,11 @@ namespace AdaDanaService.Data
                     // assign role ke user
                     if (role != null)
                     {
-                        user.RoleId = role.Id; // Set RoleId di User object sesuai dengan Id pada Role object
-                        user.CreatedAt = DateTime.Now;
-                        _userService.AddUser(user);
-                        trans.Complete(); // commit
-                        return true;
+                        // user.RoleId = role.Id; // Set RoleId di User object sesuai dengan Id pada Role object
+                        // user.CreatedAt = DateTime.Now;
+                        // _userService.AddUser(user);
+                        // trans.Complete(); // commit
+                        // return true;
                     }
                 }
                 catch (Exception ex)

@@ -30,15 +30,15 @@ namespace AdaDanaService.Data
             return _context.Users.ToList();
         }
 
-        public User FindUserByUsername(string username)
-        {
-            var user = _context.Users
-                .Include(u => u.Role)
-                .Where(o => o.Username == username)
-                .FirstOrDefault();
-            if (user is null)
-                throw new Exception("User not found");
-            return user;
-        }
+        // public User FindUserByUsername(string username)
+        // {
+        //     var user = _context.Users
+        //         .Include(u => u.Role)
+        //         .Where(o => o.Username == username)
+        //         .FirstOrDefault();
+        //     if (user is null)
+        //         throw new Exception("User not found");
+        //     return user;
+        // }
     }
 }

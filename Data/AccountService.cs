@@ -77,6 +77,7 @@ namespace AdaDanaService.Data
             }
             return false;
         }
+
         // Login admin & manager
         public async Task<UserToken> Login(LoginDto login)
         {
@@ -90,43 +91,38 @@ namespace AdaDanaService.Data
                     .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
                     .ToListAsync();
 
-                    var roleClaims = new Dictionary<string, object>();
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, usr.Id.ToString()),
+                        new Claim(ClaimTypes.Name, usr.Username)
+                    };
+
                     foreach (var role in roles)
                     {
-                        roleClaims.Add(ClaimTypes.Role, "" + role);
+                        claims.Add(new Claim(ClaimTypes.Role, role));
                     }
-
 
                     var secret = _configuration.GetValue<string>("AppSettings:Secret");
                     var secretBytes = Encoding.ASCII.GetBytes(secret);
 
-                    // token
-                    var expired = DateTime.Now.AddDays(2); // 2 hari
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    // data
                     var tokenDescriptor = new SecurityTokenDescriptor
                     {
-                        // payload
-                        Subject = new System.Security.Claims.ClaimsIdentity(
-                                new Claim[]
-                                {
-                                    new Claim(ClaimTypes.Name, login.Username)
-                                }),
-                        Claims = roleClaims, // claims - roles
-                        Expires = expired,
+                        Subject = new ClaimsIdentity(claims),
+                        Expires = DateTime.UtcNow.AddDays(2),
                         SigningCredentials = new SigningCredentials(
-                                new SymmetricSecurityKey(secretBytes),
-                                SecurityAlgorithms.HmacSha256Signature
-                            )
+                    new SymmetricSecurityKey(secretBytes),
+                    SecurityAlgorithms.HmacSha256Signature)
                     };
+
+                    var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var userToken = new UserToken
+
+                    return new UserToken
                     {
-                        Token = tokenHandler.WriteToken(token), // token as string
-                        ExpiredAt = expired.ToString(),
-                        Message = ""
+                        Token = tokenHandler.WriteToken(token),
+                        ExpiredAt = tokenDescriptor.Expires?.ToString(),
+                        Message = "Loggin success"
                     };
-                    return userToken;
                 }
             }
             return new UserToken { Message = "Invalid username or password" };

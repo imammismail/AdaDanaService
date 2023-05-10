@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AdaDanaService.Data;
 using AdaDanaService.Dtos;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -23,9 +24,10 @@ namespace AdaDanaService.Controller
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ReadUserDto>> GetAllUser()
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<ReadUserDto>>> GetAllUser()
         {
-            var userItem = _userService.GetAllUser();
+            var userItem = await _userService.GetAllUser();
             var productReadDtoList = _mapper.Map<IEnumerable<ReadUserDto>>(userItem);
             return Ok(productReadDtoList);
         }

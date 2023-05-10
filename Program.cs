@@ -22,10 +22,6 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<AdaDanaContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("User", policy => policy.RequireClaim("role", "User"));
-});
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -36,8 +32,12 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 
-builder.Services.AddControllers();
+// Konfigurasi http client dengan gole 
+// builder.Services.AddHttpClient<IGoleHttpService, GoleHttpService>();
 
+// service http context
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Jwt configuration
 var secret = builder.Configuration["AppSettings:Secret"];
@@ -76,6 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

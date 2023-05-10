@@ -87,10 +87,28 @@ namespace AdaDanaService.Data
             _context.SaveChanges();
         }
 
-        public Wallet GetWallet(int saldo)
+        public int GetWalletBalance(string username)
         {
-            return _context.Wallets.FirstOrDefault(w => w.Saldo == saldo);
+            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            if (user == null)
+            {
+                throw new Exception("User tidak ditemukan.");
+            }
+
+            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == user.Id);
+            if (wallet == null)
+            {
+                throw new Exception("Wallet tidak ditemukan.");
+            }
+
+            return wallet.Saldo;
         }
+
+
+        // public Wallet GetWallet(int saldo)
+        // {
+        //     return _context.Wallets.FirstOrDefault(w => w.Saldo == saldo);
+        // }
 
         public void UpdateWallet(Wallet wallet)
         {

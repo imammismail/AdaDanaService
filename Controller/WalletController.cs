@@ -20,30 +20,13 @@ namespace AdaDanaService.Controller
         {
             _walletDataService = walletDataService;
         }
-
-        /* [HttpPost("topup")]*/
-        /*        public async Task<IActionResult> TopUp(TopUpDto topUpDto)
-                {
-                    // Cek apakah pengguna memiliki role 'user'
-                    var userRole = _walletDataService.GetUserRole(topUpDto.Username);
-                    if (userRole != "user")
-                    {
-                        return BadRequest("Anda bukan user");
-                    }
-
-                    // Lakukan top up saldo
-                    var wallet = _walletDataService.GetWallet(topUpDto.Saldo);
-                    wallet.Saldo += topUpDto.Saldo;
-                    _walletDataService.UpdateWallet(wallet);
-
-                    return Ok("Saldo berhasil ditambahkan");
-                }*/
-
-        [HttpPost("topup")]
+        //[Authorize(Roles = "User")]
+        [HttpPost("Topup")]
         public IActionResult TopUp(TopUpDto request)
         {
             try
             {
+                // var username = User.Identity.Name;
                 _walletDataService.TopUpWallet(request.Username, request.Saldo);
                 return Ok("Top-up berhasil dilakukan.");
             }
@@ -53,13 +36,31 @@ namespace AdaDanaService.Controller
             }
         }
 
-        [HttpPost("cashout")]
+        //[Authorize(Roles = "User")]
+        [HttpPost("CashOut")]
         public IActionResult CashOut(TopUpDto request)
         {
             try
             {
+                //var username = User.Identity.Name;
                 _walletDataService.CashOutWallet(request.Username, request.Saldo);
                 return Ok("Saldo Berhasil Berkurang");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[Authorize(Roles = "User")]
+        [HttpPost("ViewBalance")]
+        public IActionResult GetBalance(ReadWalletDto request)
+        {
+            try
+            {
+                //var username = User.Identity.Name;
+                var saldo = _walletDataService.GetWalletBalance(request.Username);
+                return Ok(new { saldo });
             }
             catch (Exception ex)
             {

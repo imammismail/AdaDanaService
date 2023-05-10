@@ -10,6 +10,6 @@ namespace AdaDanaService.Data
         Task<bool> Register(RegisterUserDto registerUserDto);
         Task<UserToken> Login(LoginDto login);
         Task<UserToken> LoginByGooleId(GooleIdDto gooleIdDto);
-        Task UpdatePasswordUser(string password);
+        Task UpdatePasswordUser(UpdatePassword updatePassword);
     }
 }

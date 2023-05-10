@@ -1,6 +1,7 @@
 ﻿using AdaDanaService.Data;
 using AdaDanaService.Dtos;
 using AdaDanaService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +42,25 @@ namespace AdaDanaService.Controller
                 return result;
             }
             return BadRequest(new UserToken { Message = "Invalid username or password" });
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPut]
+        public async Task<string> PassowordUser(UpdatePassword updatePassword)
+        {
+            try
+            {
+                await _accountService.UpdatePasswordUser(updatePassword);
+                return "Password updated successfully";
+            }
+            catch (ArgumentException ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+            catch (Exception)
+            {
+                return "Error updating password";
+            }
         }
     }
 }

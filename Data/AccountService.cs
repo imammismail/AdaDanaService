@@ -20,10 +20,11 @@ namespace AdaDanaService.Data
         private readonly IUserRoleService _userRoleService;
         private readonly IConfiguration _configuration;
         private readonly AdaDanaContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AccountService(IUserService userService, IRoleService roleService,
         IMapper mapper, IUserRoleService userRoleService, IConfiguration configuration,
-        AdaDanaContext context)
+        AdaDanaContext context, IHttpContextAccessor httpContextAccessor)
         {
             _userService = userService;
             _roleService = roleService;
@@ -31,6 +32,7 @@ namespace AdaDanaService.Data
             _userRoleService = userRoleService;
             _configuration = configuration;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // Register admin dan manager
@@ -134,9 +136,17 @@ namespace AdaDanaService.Data
             throw new NotImplementedException();
         }
 
-        public async Task UpdatePasswordUser(string password)
+        public async Task UpdatePasswordUser(UpdatePassword updatePassword)
         {
-            throw new NotImplementedException();
+            var user = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            if (user == null)
+                throw new ArgumentException("User not found");
+
+            // ambil user
+            var usr = await _userService.GetUser(user);
+            usr.Password = BC.HashPassword(updatePassword.NewPassword);
+            usr.UpdatedAt = DateTime.Now;
+            await _userService.UpdateUser(usr);
         }
     }
 }

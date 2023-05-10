@@ -31,5 +31,20 @@ namespace AdaDanaService.Data
         {
             return await _context.Users.ToListAsync();
         }
+
+        public async Task<User> GetUser(string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(o => o.Username == username && o.Deletes == false);
+            // jika user tidak ditemukan
+            if (user is null)
+                throw new ArgumentException($"Username '{username}' not found or is banned.");
+            return user;
+        }
+
+        public async Task UpdateUser(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

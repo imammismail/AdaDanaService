@@ -23,7 +23,7 @@ public partial class AdaDanaContext : DbContext
 
     //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-    //         => optionsBuilder.UseSqlServer("Server=LAPTOP-CMI5PG7D;Database=AdaDana;uid=student;pwd=12345;TrustServerCertificate=true;");
+    //         => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=AdaDana;uid=student;pwd=123456;TrustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,7 +58,6 @@ public partial class AdaDanaContext : DbContext
         {
             entity.ToTable("Wallet");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 

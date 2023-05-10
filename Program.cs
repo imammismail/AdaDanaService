@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AdaDanaService.Data;
 using Microsoft.AspNetCore.Authentication;
+using AdaDanaService.DataGooleService.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 
 // Konfigurasi http client dengan gole 
-// builder.Services.AddHttpClient<IGoleHttpService, GoleHttpService>();
+builder.Services.AddHttpClient<IHttpGooleService, HttpGooleService>();
 
 // service http context
 builder.Services.AddHttpContextAccessor();

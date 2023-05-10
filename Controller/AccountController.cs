@@ -1,4 +1,5 @@
 ﻿using AdaDanaService.Data;
+using AdaDanaService.DataGooleService.Http;
 using AdaDanaService.Dtos;
 using AdaDanaService.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,14 @@ namespace AdaDanaService.Controller
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private IAccountService _accountService;
+        private readonly IAccountService _accountService;
+        private readonly IHttpGooleService _httpGooleService;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, IHttpGooleService httpGooleService)
         {
             _accountService = accountService;
+            _httpGooleService = httpGooleService;
+
         }
 
         [HttpPost]
@@ -61,6 +65,26 @@ namespace AdaDanaService.Controller
             {
                 return "Error updating password";
             }
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult<UserToken>> LoginByGole(GooleIdDto gooleIdDto)
+        {
+            try
+            {
+                // Send Sync Message
+                //await _commandDataClient.SendPlatformToCommand(platformReadDto);
+                var result = await _httpGooleService.SendLoginByGoleId(gooleIdDto);
+                if (result != null)
+                    return result;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
+            }
+            return BadRequest(new UserToken { Message = "Not send" });
         }
     }
 }

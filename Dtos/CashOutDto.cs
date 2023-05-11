@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace AdaDanaService.Dtos
 {
-    public class ReadWalletDto
+    public class CashOutDto
     {
-        public int Saldo {get ; set;}
+        public int Saldo {get; set;}
     }
 }

@@ -6,76 +6,73 @@ using Microsoft.AspNetCore.Mvc;
 using AdaDanaService.Data;
 using AdaDanaService.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using AdaDanaService.Models;
+using System.Security.Claims;
 
 namespace AdaDanaService.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize(Roles = "User")]
     public class WalletController : ControllerBase
     {
-        private readonly WalletDataService _walletDataService;
+        private readonly AdaDanaContext _context;
+        private readonly IWalletService _walletService;
 
-        public WalletController(WalletDataService walletDataService)
+        public WalletController(AdaDanaContext context, IWalletService walletService)
         {
-            _walletDataService = walletDataService;
-        }
-        //[Authorize(Roles = "User")]
-        [HttpPost("Topup")]
-        public IActionResult TopUp(TopUpDto request)
-        {
-            try
-            {
-                // var username = User.Identity.Name;
-                _walletDataService.TopUpWallet(request.Username, request.Saldo);
-                return Ok("Top-up berhasil dilakukan.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _context = context;
+            _walletService = walletService;
         }
 
-        //[Authorize(Roles = "User")]
-        [HttpPost("CashOut")]
-        public IActionResult CashOut(TopUpDto request)
+        [Authorize(Roles = "User")]
+        [HttpPost("topup")]
+        public async Task<IActionResult> TopUp(TopUpDto topUpDto)
         {
             try
             {
-                //var username = User.Identity.Name;
-                _walletDataService.CashOutWallet(request.Username, request.Saldo);
-                return Ok("Saldo Berhasil Berkurang");
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var userId = int.Parse(userIdClaim.Value);
+
+                await _walletService.TopUp(userId, topUpDto.Saldo);
+                return Ok("Saldo berhasil ditambahkan");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest($"Terjadi kesalahan: {ex.Message}");
             }
         }
 
-        //[Authorize(Roles = "User")]
-        [HttpPost("ViewBalance")]
-        public IActionResult GetBalance(ReadWalletDto request)
+        [Authorize(Roles = "User")]
+        [HttpPost("cashout")]
+        public async Task<IActionResult> CashOut(CashOutDto cashOutDto)
         {
             try
             {
-                //var username = User.Identity.Name;
-                var saldo = _walletDataService.GetWalletBalance(request.Username);
-                return Ok(new { saldo });
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var userId = int.Parse(userIdClaim.Value);
+
+                await _walletService.CashOut(userId, cashOutDto.Saldo);
+                return Ok("Saldo berhasil ditarik");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest($"Terjadi kesalahan: {ex.Message}");
             }
         }
 
-        // [HttpPost("topup")]
-        // public IActionResult TopUpBalance([FromBody] TopUpDto topUpDto)
-        // {
-        //     var userId = int.Parse(User.Identity.Name);
-
-        //     var wallet = _walletDataService.TopUpBalance(userId, topUpDto.Saldo);
-
-        //     return Ok(wallet);
-        // }
+        [Authorize(Roles = "User")]
+        [HttpGet("balance")]
+        public async Task<IActionResult> GetBalance(ReadWalletDto readWalletDto)
+        {
+            try
+            {
+                var balance = await _walletService.GetBalance();
+                return Ok(new { Saldo = balance });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Terjadi kesalahan: {ex.Message}");
+            }
+        }
     }
 }

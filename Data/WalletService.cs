@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AdaDanaService.Dtos;
+using AdaDanaService.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace AdaDanaService.Data
+{
+    public class WalletService : IWalletService
+    {
+        private readonly AdaDanaContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public WalletService(AdaDanaContext context, IHttpContextAccessor httpContextAccessor)
+        {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task TopUp(int userId,int saldo)
+        {
+            var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                throw new Exception("Gagal mengambil nama pengguna dari token.");
+            }
+
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userName);
+
+            if (user == null)
+            {
+                throw new Exception("Pengguna tidak ditemukan.");
+            }
+
+            var wallet = await _context.Wallets.SingleOrDefaultAsync(w => w.UserId == user.Id);
+
+            if (wallet == null)
+            {
+                throw new Exception("Dompet pengguna tidak ditemukan.");
+            }
+
+            wallet.Saldo += saldo;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task CashOut(int userId,int saldo)
+        {
+            var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                throw new Exception("Gagal mengambil nama pengguna dari token.");
+            }
+
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userName);
+
+            if (user == null)
+            {
+                throw new Exception("Pengguna tidak ditemukan.");
+            }
+
+            var wallet = await _context.Wallets.SingleOrDefaultAsync(w => w.UserId == user.Id);
+
+            if (wallet == null)
+            {
+                throw new Exception("Dompet pengguna tidak ditemukan.");
+            }
+
+            if (saldo > wallet.Saldo)
+            {
+                throw new Exception("Saldo tidak mencukupi untuk melakukan penarikan.");
+            }
+
+            wallet.Saldo -= saldo;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetBalance()
+        {
+            var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                throw new Exception("Gagal mengambil nama pengguna dari token.");
+            }
+
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userName);
+
+            if (user == null)
+            {
+                throw new Exception("Pengguna tidak ditemukan.");
+            }
+
+            var wallet = await _context.Wallets.SingleOrDefaultAsync(w => w.UserId == user.Id);
+
+            if (wallet == null)
+            {
+                throw new Exception("Dompet pengguna tidak ditemukan.");
+            }
+
+            return wallet.Saldo;
+        }
+    }
+
+}

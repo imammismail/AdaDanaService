@@ -62,11 +62,12 @@ namespace AdaDanaService.Controller
 
         [Authorize(Roles = "User")]
         [HttpGet("balance")]
-        public async Task<IActionResult> GetBalance(ReadWalletDto readWalletDto)
+        public async Task<IActionResult> GetBalance()
         {
             try
             {
-                var balance = await _walletService.GetBalance();
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var balance = await _walletService.GetBalance(userId);
                 return Ok(new { Saldo = balance });
             }
             catch (Exception ex)

@@ -81,31 +81,18 @@ namespace AdaDanaService.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<int> GetBalance()
+        public async Task<int> GetBalance(int userId)
         {
-            var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
 
-            if (string.IsNullOrEmpty(userName))
+            if (wallet != null)
             {
-                throw new Exception("Gagal mengambil nama pengguna dari token.");
+                return wallet.Saldo;
             }
-
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userName);
-
-            if (user == null)
+            else
             {
-                throw new Exception("Pengguna tidak ditemukan.");
+                throw new Exception("Wallet not found");
             }
-
-            var wallet = await _context.Wallets.SingleOrDefaultAsync(w => w.UserId == user.Id);
-
-            if (wallet == null)
-            {
-                throw new Exception("Dompet pengguna tidak ditemukan.");
-            }
-
-            return wallet.Saldo;
         }
     }
-
 }

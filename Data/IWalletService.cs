@@ -10,6 +10,6 @@ namespace AdaDanaService.Data
     {
         Task TopUp(int userId, int saldo);
         Task CashOut(int userId, int saldo);
-        Task<int> GetBalance();
+        Task<int> GetBalance(int userId);
     }
 }

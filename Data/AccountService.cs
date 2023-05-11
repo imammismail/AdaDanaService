@@ -89,9 +89,9 @@ namespace AdaDanaService.Data
                 if (BC.Verify(login.Password, usr.Password))
                 {
                     var roles = await _context.UserRoles
-                    .Where(ur => ur.UserId == usr.Id)
-                    .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
-                    .ToListAsync();
+                        .Where(ur => ur.UserId == usr.Id)
+                        .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                        .ToListAsync();
 
                     var claims = new List<Claim>
                     {
@@ -112,12 +112,28 @@ namespace AdaDanaService.Data
                         Subject = new ClaimsIdentity(claims),
                         Expires = DateTime.UtcNow.AddDays(2),
                         SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(secretBytes),
-                    SecurityAlgorithms.HmacSha256Signature)
+                            new SymmetricSecurityKey(secretBytes),
+                            SecurityAlgorithms.HmacSha256Signature)
                     };
 
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                    // Membuat wallet dengan saldo 0
+                    var existingWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == usr.Id);
+                    if (existingWallet == null)
+                    {
+                        var wallet = new Wallet
+                        {
+                            UserId = usr.Id,
+                            Saldo = 0,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Wallets.Add(wallet);
+                        await _context.SaveChangesAsync();
+                    }
 
                     return new UserToken
                     {
@@ -129,6 +145,7 @@ namespace AdaDanaService.Data
             }
             return new UserToken { Message = "Invalid username or password" };
         }
+
 
         // Login user by goole
         public async Task<UserToken> LoginByGooleId(GooleIdDto gooleIdDto)

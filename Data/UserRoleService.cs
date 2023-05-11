@@ -21,14 +21,5 @@ namespace AdaDanaService.Data
             await _context.UserRoles.AddAsync(userRole);
         }
 
-        // public List<string> GetRolesByUsername(string username)
-        //     {
-        // //         return _context.Users
-        // //    .Join(_context.Roles, u => u.RoleId, r => r.Id, (u, r) => new { u, r })
-        // //    .Where(ur => ur.u.Username == username)
-        // //    .Select(ur => ur.r.Name)
-        // //    .ToList();
-
-        //     }
     }
 }

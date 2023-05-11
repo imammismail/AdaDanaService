@@ -21,10 +21,12 @@ namespace AdaDanaService.Data
         private readonly IConfiguration _configuration;
         private readonly AdaDanaContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWalletService _walletService;
 
         public AccountService(IUserService userService, IRoleService roleService,
         IMapper mapper, IUserRoleService userRoleService, IConfiguration configuration,
-        AdaDanaContext context, IHttpContextAccessor httpContextAccessor)
+        AdaDanaContext context, IHttpContextAccessor httpContextAccessor,
+        IWalletService walletService)
         {
             _userService = userService;
             _roleService = roleService;
@@ -33,6 +35,7 @@ namespace AdaDanaService.Data
             _configuration = configuration;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _walletService = walletService;
         }
 
         // Register admin dan manager
@@ -42,13 +45,22 @@ namespace AdaDanaService.Data
             {
                 try
                 {
+                    var existingUser = await _userService.FindUser(registerUserDto.Username);
+                    if (existingUser != null)
+                    {
+                        throw new Exception($"User {registerUserDto.Username} already exists");
+                    }
                     // ambil role user
                     var role = await _roleService.GetRoleUser(); // Hardcode langsung Admin
+
                     // mapping register user dto ke user
                     var user = new User
                     {
                         Username = registerUserDto.Username,
-                        Password = BC.HashPassword(registerUserDto.Password)
+                        Password = BC.HashPassword(registerUserDto.Password),
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        Deletes = false
                     };
 
                     if (role != null)
@@ -58,29 +70,29 @@ namespace AdaDanaService.Data
                         ur.User = user;
                         ur.Role = role;
 
-                        user.CreatedAt = DateTime.Now;
-                        user.UpdatedAt = DateTime.Now;
-
-                        // masukkan user ke dalam tabel user dan role ke dalam user role
-                        await _userService.AddUser(user);
+                        // insert userId ke tabel userRole
                         await _userRoleService.AddRoleUser(ur);
-                        await _context.SaveChangesAsync();
-
-                        //membuat wallet dengan saldo 0
-                        var wallet = new Wallet
-                        {
-                            UserId = user.Id,
-                            Saldo = 0,
-                            CreatedAt = DateTime.UtcNow,
-                            UpdatedAt = DateTime.UtcNow
-                        };
-
-                        _context.Wallets.Add(wallet);
-                        await _context.SaveChangesAsync();
-
-                        trans.Commit();
-                        return true;
                     }
+
+                    // insert user ke dalam tabel user
+                    await _userService.AddUser(user);
+                    await _context.SaveChangesAsync();
+
+                    //membuat wallet dengan saldo 0
+                    var wallet = new Wallet
+                    {
+                        UserId = user.Id,
+                        Saldo = 0,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    // insert userId ke dalam tabel wallet
+                    await _walletService.AddWallet(wallet);
+                    await _context.SaveChangesAsync();
+
+                    trans.Commit();
+                    return true;
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +107,11 @@ namespace AdaDanaService.Data
         // Login admin & manager
         public async Task<UserToken> Login(LoginDto login)
         {
-            var usr = await _userService.FindUserByUsername(login.Username);
+            var usr = await _userService.FindUser(login.Username);
+            if (usr.Deletes == true)
+            {
+                return new UserToken { Message = "Your account is disabled, please contact goole support" };
+            }
             if (usr != null)
             {
                 if (BC.Verify(login.Password, usr.Password))
@@ -140,13 +156,6 @@ namespace AdaDanaService.Data
                 }
             }
             return new UserToken { Message = "Invalid username or password" };
-        }
-
-
-        // Login user by goole
-        public async Task<UserToken> LoginByGooleId(GooleIdDto gooleIdDto)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task UpdatePasswordUser(UpdatePassword updatePassword)

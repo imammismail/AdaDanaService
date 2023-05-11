@@ -9,6 +9,5 @@ namespace AdaDanaService.Data
     public interface IUserRoleService
     {
         Task AddRoleUser(UserRole userRole);
-        // List<string> GetRolesByUsername(string username);
     }
 }

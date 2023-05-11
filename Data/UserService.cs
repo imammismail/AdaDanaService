@@ -18,12 +18,22 @@ namespace AdaDanaService.Data
             await _context.Users.AddAsync(user);
         }
 
+        public async Task<User> FindUser(string username)
+        {
+            return await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+        }
+
         public async Task<User> FindUserByUsername(string username)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Deletes == false);
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
             if (user is null)
                 throw new Exception("User not found");
             return user;
+        }
+
+        public async Task<User> FindUsernameDb(string username)
+        {
+            return await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
         }
 
         // Mengambil all user dengan role user

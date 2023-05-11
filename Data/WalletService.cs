@@ -20,7 +20,7 @@ namespace AdaDanaService.Data
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task TopUp(int userId,int saldo)
+        public async Task TopUp(int userId, int saldo)
         {
             var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
@@ -48,7 +48,7 @@ namespace AdaDanaService.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task CashOut(int userId,int saldo)
+        public async Task CashOut(int userId, int saldo)
         {
             var userName = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
@@ -93,6 +93,11 @@ namespace AdaDanaService.Data
             {
                 throw new Exception("Wallet not found");
             }
+        }
+
+        public async Task AddWallet(Wallet wallet)
+        {
+            await _context.Wallets.AddAsync(wallet);
         }
     }
 }

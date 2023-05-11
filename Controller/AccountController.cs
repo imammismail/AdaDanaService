@@ -73,18 +73,20 @@ namespace AdaDanaService.Controller
         {
             try
             {
-                // Send Sync Message
-                //await _commandDataClient.SendPlatformToCommand(platformReadDto);
                 var result = await _httpGooleService.SendLoginByGoleId(gooleIdDto);
-                if (result != null)
+                if (result.Token != null)
                     return result;
+                else
+                    throw new Exception($"{result.Message}");
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
+                return BadRequest(new UserToken { Message = ex.Message });
             }
-            return BadRequest(new UserToken { Message = "Not send" });
         }
+
+
+
     }
 }

@@ -66,6 +66,18 @@ namespace AdaDanaService.Data
                         await _userRoleService.AddRoleUser(ur);
                         await _context.SaveChangesAsync();
 
+                        //membuat wallet dengan saldo 0
+                        var wallet = new Wallet
+                        {
+                            UserId = user.Id,
+                            Saldo = 0,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Wallets.Add(wallet);
+                        await _context.SaveChangesAsync();
+
                         trans.Commit();
                         return true;
                     }
@@ -118,22 +130,6 @@ namespace AdaDanaService.Data
 
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.CreateToken(tokenDescriptor);
-
-                    // Membuat wallet dengan saldo 0
-                    var existingWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == usr.Id);
-                    if (existingWallet == null)
-                    {
-                        var wallet = new Wallet
-                        {
-                            UserId = usr.Id,
-                            Saldo = 0,
-                            CreatedAt = DateTime.UtcNow,
-                            UpdatedAt = DateTime.UtcNow
-                        };
-
-                        _context.Wallets.Add(wallet);
-                        await _context.SaveChangesAsync();
-                    }
 
                     return new UserToken
                     {

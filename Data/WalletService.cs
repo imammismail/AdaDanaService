@@ -99,5 +99,23 @@ namespace AdaDanaService.Data
         {
             await _context.Wallets.AddAsync(wallet);
         }
+
+        public void CashoutOtherService(int walletId, int saldo)
+        {
+            var wallet = _context.Wallets.FirstOrDefault(w => w.Id == walletId);
+            if (wallet != null)
+            {
+                wallet.Saldo -= saldo;
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new ArgumentException($"Wallet with Id '{walletId}' does not exist");
+            }
+        }
+        public bool WalletExists(int walletId)
+        {
+            return _context.Wallets.Any(w => w.Id == walletId);
+        }
     }
 }

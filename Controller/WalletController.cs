@@ -8,6 +8,8 @@ using AdaDanaService.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using AdaDanaService.Models;
 using System.Security.Claims;
+using AutoMapper;
+using AdaDanaService.AsyncDataService;
 
 namespace AdaDanaService.Controller
 {
@@ -17,11 +19,15 @@ namespace AdaDanaService.Controller
     {
         private readonly AdaDanaContext _context;
         private readonly IWalletService _walletService;
+        private readonly IMapper _mapper;
+        private readonly IMessageClient _messageClient;
 
-        public WalletController(AdaDanaContext context, IWalletService walletService)
+        public WalletController(AdaDanaContext context, IWalletService walletService, IMapper mapper, IMessageClient messageClient)
         {
             _context = context;
+            _mapper = mapper;
             _walletService = walletService;
+            _messageClient = messageClient;
         }
 
         [Authorize(Roles = "User")]
@@ -34,6 +40,11 @@ namespace AdaDanaService.Controller
                 var userId = int.Parse(userIdClaim.Value);
 
                 await _walletService.TopUp(userId, topUpDto.Saldo);
+
+                var topupWalletPublishDto = _mapper.Map<TopupWalletPublishDto>(topUpDto);
+                topupWalletPublishDto.Event = "TopupWallet_NewPublished";
+                _messageClient.PublishTopupWallet(topupWalletPublishDto);
+
                 return Ok("Saldo berhasil ditambahkan");
             }
             catch (Exception ex)

@@ -8,5 +8,7 @@ namespace AdaDanaService.Data
         Task<bool> Register(RegisterUserDto registerUserDto);
         Task<UserToken> Login(LoginDto login);
         Task UpdatePasswordUser(UpdatePassword updatePassword);
+        Task Banned(string username);
+        Task Unbanned(string username);
     }
 }

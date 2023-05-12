@@ -1,4 +1,5 @@
-﻿using AdaDanaService.Models;
+﻿using AdaDanaService.Dtos;
+using AdaDanaService.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AdaDanaService.Data
@@ -36,10 +37,31 @@ namespace AdaDanaService.Data
             return await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
         }
 
+        public async Task<User> FindUserNotBanned(string username)
+        {
+            return await _context.Users.Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .SingleOrDefaultAsync(u => u.Username == username
+                    && u.Deletes == false
+                    && u.UserRoles.Any(ur => ur.Role.Name == "User"));
+        }
+
+        public async Task<User> FindUserBanned(string username)
+        {
+            return await _context.Users.Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .SingleOrDefaultAsync(u => u.Username == username
+                    && u.Deletes == true
+                    && u.UserRoles.Any(ur => ur.Role.Name == "User"));
+        }
+
         // Mengambil all user dengan role user
         public async Task<IEnumerable<User>> GetAllUser()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Where(u => u.UserRoles.Any(ur => ur.Role.Name != "Admin" && ur.Role.Name != "Manager"))
+                .ToListAsync();
+            return users;
         }
 
         public async Task<User> GetUser(string username)
@@ -55,6 +77,22 @@ namespace AdaDanaService.Data
         {
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<UserBelanceDto>> GetAllUserBelance()
+        {
+            var usersBelance = await _context.Users
+            .Where(u => !u.UserRoles.Any(r => r.Role.Name == "Admin" || r.Role.Name == "Manager"))
+            .Where(u => !u.Deletes)
+            .Select(u => new UserBelanceDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Saldo = u.Wallets.Sum(w => w.Saldo),
+                CreatedAt = u.CreatedAt
+            })
+            .ToListAsync();
+            return usersBelance;
         }
     }
 }

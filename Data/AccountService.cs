@@ -170,5 +170,27 @@ namespace AdaDanaService.Data
             usr.UpdatedAt = DateTime.Now;
             await _userService.UpdateUser(usr);
         }
+
+        public async Task Banned(string username)
+        {
+            var userBanned = await _userService.FindUserNotBanned(username);
+            if (userBanned == null)
+            {
+                throw new Exception("User not found or not allowed to baned");
+            }
+            userBanned.Deletes = true;
+            await _userService.UpdateUser(userBanned);
+        }
+
+        public async Task Unbanned(string username)
+        {
+            var userUnbanned = await _userService.FindUserBanned(username);
+            if (userUnbanned == null)
+            {
+                throw new Exception("User not found or not banned");
+            }
+            userUnbanned.Deletes = false;
+            await _userService.UpdateUser(userUnbanned);
+        }
     }
 }

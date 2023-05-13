@@ -17,7 +17,7 @@ namespace AdaDanaService.AsyncDataServices
         private IConnection _connection;
         private IModel _channel;
         private string _queueName;
-        private string _walletCashoutQueueName;
+        private string _cashOutQueueName;
 
         public MessageBusSubscriber(IConfiguration configuration, IEventProcessor eventProcessor,
             ILogger<MessageBusSubscriber> logger)
@@ -36,14 +36,14 @@ namespace AdaDanaService.AsyncDataServices
                 HostName = _configuration["RabbitMQHost"],
                 Port = int.Parse(_configuration["RabbitMQPort"])
             };
+
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-
-            // Declare cashout wallet
+            // Declare product
             _channel.ExchangeDeclare(exchange: "trigger_cashout_wallet", type: ExchangeType.Fanout);
-            _walletCashoutQueueName = _channel.QueueDeclare().QueueName;
-            _channel.QueueBind(queue: _walletCashoutQueueName, exchange: "trigger_cashout_wallet", routingKey: "");
+            _cashOutQueueName = _channel.QueueDeclare().QueueName;
+            _channel.QueueBind(queue: _cashOutQueueName, exchange: "trigger_cashout_wallet", routingKey: "");
 
             _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
         }
@@ -58,15 +58,16 @@ namespace AdaDanaService.AsyncDataServices
         {
             stoppingToken.ThrowIfCancellationRequested();
 
-            var walletTopupConsumer = new EventingBasicConsumer(_channel);
-            walletTopupConsumer.Received += (ModuleHandle, ea) =>
+            var walletConsumer = new EventingBasicConsumer(_channel);
+            walletConsumer.Received += (ModuleHandle, ea) =>
             {
-                Console.WriteLine("--> Wallet Cashout Event Received !");
+                Console.WriteLine("--> Cash out Event Received !");
                 var body = ea.Body;
                 var notificationMessage = Encoding.UTF8.GetString(body.ToArray());
                 _eventProcessor.ProccessEvent(notificationMessage);
             };
-            _channel.BasicConsume(queue: _walletCashoutQueueName, autoAck: true, consumer: walletTopupConsumer);
+            _channel.BasicConsume(queue: _cashOutQueueName, autoAck: true, consumer: walletConsumer);
+
 
             return Task.CompletedTask;
         }

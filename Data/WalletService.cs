@@ -117,5 +117,25 @@ namespace AdaDanaService.Data
         {
             return _context.Wallets.Any(w => w.Id == walletId);
         }
+        public void WalletUpdate(Wallet wallet)
+        {
+            wallet.UpdatedAt = DateTime.Now;
+
+            // update data pada tabel wallet
+            _context.Wallets.Update(wallet);
+            _context.SaveChanges();
+        }
+
+        public Wallet GetWalletByUserId(int userId)
+        {
+            return _context.Wallets.FirstOrDefault(w => w.UserId == userId);
+        }
+
+        public User ExternalUserExists(string username)
+        {
+            var user = _context.Users.FirstOrDefault(o => o.Username == username && o.Deletes == false);
+            return user;
+        }
+
     }
 }

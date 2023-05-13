@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AutoMapper;
 using AdaDanaService.Data;
 using AdaDanaService.Dtos;
-using AdaDanaService.Models;
+using AutoMapper;
 
 namespace AdaDanaService.EventProcessing
 {
@@ -14,36 +13,36 @@ namespace AdaDanaService.EventProcessing
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IMapper _mapper;
-        private readonly AdaDanaContext _context;
 
-        public EventProcessor(AdaDanaContext context, IServiceScopeFactory serviceScopeFactory, IMapper mapper)
+        public EventProcessor(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
         {
             _scopeFactory = serviceScopeFactory;
             _mapper = mapper;
-            _context = context;
         }
+
 
         public void ProccessEvent(string message)
         {
             var eventType = DetermineEvent(message);
             switch (eventType)
             {
-                case EventType.TopupWalletPublished:
-                    cashoutWallet(message);
+                case EventType.CashOutPublished:
+                    cashOut(message);
                     break;
                 default:
                     break;
             }
         }
 
+
         private EventType DetermineEvent(string notificationMessage)
         {
             var eventType = JsonSerializer.Deserialize<GenericEventDto>(notificationMessage);
             switch (eventType.Event)
             {
-                case "TopupWallet_NewPublished":
-                    Console.WriteLine("--> TopupWallet_NewPublished Event Detected");
-                    return EventType.TopupWalletPublished;
+                case "CashoutWallet_NewPublished":
+                    Console.WriteLine("--> CashoutWallet_NewPublished Event Detected");
+                    return EventType.CashOutPublished;
                 default:
                     Console.WriteLine("--> Could not determine the event type");
                     return EventType.Undetermined;
@@ -51,25 +50,41 @@ namespace AdaDanaService.EventProcessing
         }
 
 
-        private void cashoutWallet(string topupWalletMessage)
+        private void cashOut(string cashOutPublishMessage)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var repo = scope.ServiceProvider.GetRequiredService<IWalletService>();
-                var walletPublishedDto = JsonSerializer.Deserialize<TopupWalletPublishDto>(topupWalletMessage);
+                var cashOutPubishedDto = JsonSerializer.Deserialize<CashOutPublisedDto>(cashOutPublishMessage);
                 try
                 {
-                    var wallet = _mapper.Map<Wallet>(walletPublishedDto);
-                    var getWalletId = _context.Users.FirstOrDefault(u => u.Username == walletPublishedDto.Username);
-                    if (!repo.WalletExists(getWalletId.Id))
+                    var cashToSaldo = new CashToSaldoDto();
+                    cashToSaldo.Username = cashOutPubishedDto.Username;
+                    cashToSaldo.Saldo = cashOutPubishedDto.Cash;
+                    var cashOutWallet = _mapper.Map<CashOutDto>(cashToSaldo);
+
+
+                    var user = repo.ExternalUserExists(cashOutWallet.Username);
+                    if (user == null)
                     {
-                        Console.WriteLine("--> Wallet doesn't exist in database");
+                        Console.WriteLine($"--> User with username {cashOutWallet.Username} does not exist");
+                        return;
                     }
-                    else
+
+                    Console.WriteLine($"-->Username BukaToko : {cashOutWallet.Username} == Username AdaDana : {user.Username}");
+
+                    var wallet = repo.GetWalletByUserId(user.Id);
+                    if (wallet == null)
                     {
-                        repo.CashoutOtherService(getWalletId.Id, walletPublishedDto.Saldo);
-                        Console.WriteLine("--> Topup cash added to wallet order");
+                        Console.WriteLine($"--> Wallet for user {cashOutWallet.Username} does not exist");
+                        return;
                     }
+
+                    wallet.Saldo -= cashOutWallet.Saldo;
+                    repo.WalletUpdate(wallet);
+                    Console.WriteLine($"--> Wallet succes {wallet.Saldo} - {cashOutWallet.Saldo}");
+
+
                 }
                 catch (Exception ex)
                 {
@@ -77,11 +92,11 @@ namespace AdaDanaService.EventProcessing
                 }
             }
         }
-    }
 
-    enum EventType
-    {
-        TopupWalletPublished,
-        Undetermined
+        enum EventType
+        {
+            CashOutPublished,
+            Undetermined
+        }
     }
 }

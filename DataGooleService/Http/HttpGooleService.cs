@@ -111,10 +111,8 @@ namespace AdaDanaService.DataGooleService.Http
                         }
                     }
                 }
-                // Jika username ada update banned user menjadi false
+                // Jika username ada 
                 var usr = await _userService.FindUserByUsername(allContent.Username);
-                usr.Deletes = false;
-                await _userService.UpdateUser(usr);
 
                 var roles = await _context.UserRoles
                             .Where(ur => ur.UserId == usr.Id)
@@ -157,17 +155,6 @@ namespace AdaDanaService.DataGooleService.Http
             // Jika reponse goole id Unauthorized
             else
             {
-                if (allContent.Token == null && allContent.ExpiredAt == null && allContent.Message == "User is banned")
-                {
-                    var userBanned = await _userService.FindUserByUsername(gooleIdDto.Username);
-                    userBanned.Deletes = true;
-                    await _userService.UpdateUser(userBanned);
-
-
-                    Console.WriteLine("--> Sync POST to GoleService failed");
-                    return new UserToken { Message = $"{allContent.Message}" };
-                }
-
                 Console.WriteLine("--> Sync POST to GoleService failed");
                 return new UserToken { Message = $"{allContent.Message}" };
             }

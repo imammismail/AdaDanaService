@@ -7,6 +7,8 @@ using AdaDanaService.Data;
 using Microsoft.AspNetCore.Authentication;
 using AdaDanaService.DataGooleService.Http;
 using AdaDanaService.AsyncDataService;
+using AdaDanaService.AsyncDataServices;
+using AdaDanaService.EventProcessing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,8 @@ builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddHttpClient<IHttpGooleService, HttpGooleService>();
 
 builder.Services.AddSingleton<IMessageClient, MessageClient>();
+builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
+builder.Services.AddHostedService<MessageBusSubscriber>();
 
 // service http context
 builder.Services.AddHttpContextAccessor();

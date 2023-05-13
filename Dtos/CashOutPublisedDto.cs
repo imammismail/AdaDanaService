@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace AdaDanaService.Dtos
 {
-    public class CashOutDto
+    public class CashOutPublisedDto
     {
         public string Username { get; set; }
-        public int Saldo { get; set; }
+        public int Cash { get; set; }
+        public string Event { get; set; }
     }
 }

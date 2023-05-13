@@ -14,6 +14,8 @@ namespace AdaDanaService.Data
         Task<int> GetBalance(int userId);
         Task AddWallet(Wallet wallet);
         void CashoutOtherService(int walletId, int saldo);
-        bool WalletExists(int walletId);
+        User ExternalUserExists(string username);
+        Wallet GetWalletByUserId(int userId);
+        void WalletUpdate(Wallet wallet);
     }
 }

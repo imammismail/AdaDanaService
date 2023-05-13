@@ -19,6 +19,7 @@ namespace AdaDanaService.Profiles
                 .ForMember(dest => dest.Saldo, opt => opt.MapFrom(src => src.Saldo))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
             CreateMap<TopupWalletPublishDto, Wallet>();
+            CreateMap<TopUpDto, TopupWalletPublishDto>();
         }
     }
 }

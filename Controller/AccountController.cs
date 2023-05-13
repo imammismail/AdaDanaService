@@ -50,7 +50,7 @@ namespace AdaDanaService.Controller
 
         [Authorize(Roles = "User")]
         [HttpPut]
-        public async Task<string> PassowordUser(UpdatePassword updatePassword)
+        public async Task<string> ChangePassword(UpdatePassword updatePassword)
         {
             try
             {

@@ -60,6 +60,7 @@ namespace AdaDanaService.Data
         {
             var users = await _context.Users
                 .Where(u => u.UserRoles.Any(ur => ur.Role.Name != "Admin" && ur.Role.Name != "Manager"))
+                .Where(u => !u.Deletes)
                 .ToListAsync();
             return users;
         }

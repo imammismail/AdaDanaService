@@ -108,14 +108,14 @@ namespace AdaDanaService.Data
         public async Task<UserToken> Login(LoginDto login)
         {
             var usr = await _userService.FindUser(login.Username);
-            if (usr.Deletes == true)
-            {
-                return new UserToken { Message = "Your account is disabled, please contact goole support" };
-            }
             if (usr != null)
             {
                 if (BC.Verify(login.Password, usr.Password))
                 {
+                    if (usr.Deletes == true)
+                    {
+                        return new UserToken { Message = "Your account is disabled, please contact adadana support" };
+                    }
                     var roles = await _context.UserRoles
                         .Where(ur => ur.UserId == usr.Id)
                         .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)

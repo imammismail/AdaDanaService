@@ -133,7 +133,7 @@ namespace AdaDanaService.Data
 
         public User ExternalUserExists(string username)
         {
-            var user = _context.Users.FirstOrDefault(o => o.Username == username && o.Deletes == false);
+            var user = _context.Users.FirstOrDefault(o => o.Username == username);
             return user;
         }
 

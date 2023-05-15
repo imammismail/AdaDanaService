@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: adadanaservice-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: adadanaservice
+  ports:
+  - name: adadanaservice
+    protocol: TCP
+    port: 80
+    targetPort: 80
